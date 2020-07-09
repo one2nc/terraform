@@ -16,6 +16,8 @@ resource "aws_iam_role" "bucket_role" {
   ]
 }
 EOF
+
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_iam_instance_profile" "bucket_iam_profile" {

@@ -13,7 +13,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = ""
+    bucket  = "zazu-personal"
     profile = "personal"
     key     = "one2n/terraform.tfstate"
     region  = "ap-south-1"

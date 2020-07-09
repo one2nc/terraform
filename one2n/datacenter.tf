@@ -26,19 +26,36 @@ variable "env" {
   type = string
 }
 
-variable "bastion_ami" {
+variable "product" {
   type = string
-  default = "ami-0dd861ee19fd50a16"
 }
 
-variable "bastion_flavour" {
+variable "author" {
   type = string
-  default = "t2.nano"
+  default = "one2n"
 }
 
-variable "bastion_count" {
-  type = number
-  default = 1
+variable "bastion" {
+  type = object({
+    ami = string
+    flavour = string
+    count = number
+    })
+
+  default = {
+    ami  = "ami-0dd861ee19fd50a16"
+    flavour = "t2.nano"
+    count = 1
+  }
+}
+
+resource "null_resource"  "tags" {
+   triggers = {
+     organization      = var.organization
+     product           = var.product
+     author            = var.author
+     env               = var.env
+   }
 }
 
 resource "tls_private_key" "bastion" {
@@ -48,10 +65,12 @@ resource "tls_private_key" "bastion" {
 resource "aws_key_pair" "bastion" {
   key_name = "bastion"
   public_key = tls_private_key.bastion.public_key_openssh
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_vpc" "vpc" {
   cidr_block = var.cidr_block
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_subnet" "public" {
@@ -60,6 +79,7 @@ resource "aws_subnet" "public" {
   cidr_block = cidrsubnet(aws_vpc.vpc.cidr_block, 3, count.index)
   map_public_ip_on_launch = true
   vpc_id = aws_vpc.vpc.id
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_subnet" "private" {
@@ -68,6 +88,7 @@ resource "aws_subnet" "private" {
   cidr_block = cidrsubnet(aws_vpc.vpc.cidr_block, 3, count.index + 4)
   map_public_ip_on_launch = true
   vpc_id = aws_vpc.vpc.id
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_internet_gateway" "ig" {
@@ -83,6 +104,7 @@ resource "aws_nat_gateway" "nat" {
   count = lookup(null_resource.zone_count.triggers, "total")
   allocation_id = element(aws_eip.nat.*.id, count.index)
   subnet_id = element(aws_subnet.public.*.id, 0)
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_security_group" "bastion" {
@@ -96,6 +118,7 @@ resource "aws_security_group" "bastion" {
     protocol = -1
     to_port = 0
   }
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_security_group_rule" "bastion-22"   {
@@ -120,11 +143,13 @@ resource "aws_security_group_rule" "bastion-443"   {
 resource "aws_route_table" "public" {
   count = lookup(null_resource.zone_count.triggers, "total")
   vpc_id = aws_vpc.vpc.id
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_route_table" "private" {
   count = lookup(null_resource.zone_count.triggers, "total")
   vpc_id = aws_vpc.vpc.id
+  tags = null_resource.tags.triggers
 }
 
 resource "aws_route" "public" {
@@ -154,12 +179,13 @@ resource "aws_route_table_association" "private" {
 }
 
 resource "aws_instance" "bastion" {
-  count = var.bastion_count
-  ami = var.bastion_ami
+  count = var.bastion.count
+  ami = var.bastion.ami
   associate_public_ip_address = true
-  instance_type = var.bastion_flavour
+  instance_type = var.bastion.flavour
   key_name = aws_key_pair.bastion.key_name
   subnet_id = element(aws_subnet.public.*.id, count.index)
   source_dest_check = false
   vpc_security_group_ids = [aws_security_group.bastion.id]
+  tags = null_resource.tags.triggers
 }
