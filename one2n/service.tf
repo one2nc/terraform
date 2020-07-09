@@ -36,7 +36,7 @@ resource "aws_key_pair" "service" {
 
 resource "aws_security_group" "service" {
   vpc_id                 = aws_vpc.vpc.id
-  name                   = "${var.organization}-${var.env}-service"
+  name                   = "${var.meta.organization}-${var.meta.env}-service"
   revoke_rules_on_delete = true
 
   egress {

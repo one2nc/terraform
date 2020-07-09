@@ -18,21 +18,13 @@ variable "cidr_block" {
   type = string
 }
 
-variable "organization" {
-  type = string
-}
-
-variable "env" {
-  type = string
-}
-
-variable "product" {
-  type = string
-}
-
-variable "author" {
-  type = string
-  default = "one2n"
+variable "meta" {
+  type = object({
+    organization = string
+    env = string
+    product = string
+    author = string
+    })
 }
 
 variable "bastion" {
@@ -51,10 +43,10 @@ variable "bastion" {
 
 resource "null_resource"  "tags" {
    triggers = {
-     organization      = var.organization
-     product           = var.product
-     author            = var.author
-     env               = var.env
+     organization      = var.meta.organization
+     product           = var.meta.product
+     author            = var.meta.author
+     env               = var.meta.env
    }
 }
 
@@ -109,7 +101,7 @@ resource "aws_nat_gateway" "nat" {
 
 resource "aws_security_group" "bastion" {
   vpc_id = aws_vpc.vpc.id
-  name = "${var.organization}-${var.env}-bastion"
+  name = "${var.meta.organization}-${var.meta.env}-bastion"
   revoke_rules_on_delete = true
 
   egress {
