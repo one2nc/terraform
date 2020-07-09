@@ -78,7 +78,6 @@ resource "aws_subnet" "private" {
   count = lookup(null_resource.zone_count.triggers, "total")
   availability_zone = data.aws_availability_zones.available.names[count.index]
   cidr_block = cidrsubnet(aws_vpc.vpc.cidr_block, 3, count.index + 4)
-  map_public_ip_on_launch = true
   vpc_id = aws_vpc.vpc.id
   tags = null_resource.tags.triggers
 }
