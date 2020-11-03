@@ -1,3 +1,29 @@
+output "bastion_private_key" {
+  value = tls_private_key.bastion.private_key_pem
+}
+
+output "webserver_private_key" {
+  value = tls_private_key.webserver.private_key_pem
+}
+
+resource "tls_private_key" "bastion" {
+  algorithm = "RSA"
+}
+
+resource "aws_key_pair" "bastion" {
+  key_name   = "sitaram-poc-bastion"
+  public_key = tls_private_key.bastion.public_key_openssh
+}
+
+resource "tls_private_key" "webserver" {
+  algorithm = "RSA"
+}
+
+resource "aws_key_pair" "webserver" {
+  key_name   = "sitaram-poc-webserver"
+  public_key = tls_private_key.webserver.public_key_openssh
+}
+
 variable "region" {
     type = string
     default ="ap-south-1"
@@ -207,6 +233,7 @@ resource "aws_instance" "bastion_a" {
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.public_subnet_sg.id]
     subnet_id = aws_subnet.public_a.id
+    key_name = aws_key_pair.bastion.key_name
     tags = {
         Name = "Bastion A"
     }
@@ -217,6 +244,7 @@ resource "aws_instance" "bastion_b" {
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.public_subnet_sg.id]
     subnet_id = aws_subnet.public_b.id
+    key_name = aws_key_pair.bastion.key_name
     tags = {
         Name = "Bastion B"
     }
@@ -227,6 +255,7 @@ resource "aws_instance" "webserver_a" {
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
     subnet_id = aws_subnet.private_a.id
+    key_name = aws_key_pair.webserver.key_name
     tags = {
         Name = "Webserver A"
     }
@@ -237,6 +266,7 @@ resource "aws_instance" "webserver_b" {
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
     subnet_id = aws_subnet.private_b.id
+    key_name = aws_key_pair.webserver.key_name
     tags = {
         Name = "Webserver B"
     }
