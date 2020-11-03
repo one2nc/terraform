@@ -123,10 +123,10 @@ resource "aws_nat_gateway" "nat_b" {
 resource "aws_route_table" "public_subnet_rt" {
   depends_on = [
     aws_vpc.sitaram_poc,
-    aws_internet_gateway.Internet_Gateway
+    aws_internet_gateway.sitaram_poc_ig
   ]
 
-  vpc_id = aws_vpc.custom.id
+  vpc_id = aws_vpc.sitaram_poc.id
 
   route {
     cidr_block = "0.0.0.0/0"
