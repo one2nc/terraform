@@ -32,9 +32,19 @@ resource "aws_key_pair" "webserver" {
   public_key = tls_private_key.webserver.public_key_openssh
 }
 
+output "alb_dns_name" {
+  value       = aws_lb.webserver_alb.dns_name
+  description = "The domain name of the load balancer"
+}
+
 variable "region" {
     type = string
     default ="ap-south-1"
+}
+
+variable "server_port" {
+    type = number
+    default = 8080
 }
 
 provider "aws" {
@@ -116,6 +126,14 @@ resource "aws_security_group" "private_subnet_sg" {
         cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     }
 
+    ingress {
+        from_port = 80
+        to_port = 8080
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+        security_groups = [aws_security_group.webserver_alb_sg.id]
+    }
+
     egress {
         from_port = 0
         to_port = 0
@@ -140,6 +158,25 @@ resource "aws_security_group" "rds_sg" {
         protocol = "-1"
         cidr_blocks = ["10.0.3.0/24", "10.0.4.0/24"]
     }
+}
+
+resource "aws_security_group" "webserver_alb_sg" {
+  name = "webserver_alb_sg"
+  vpc_id = aws_vpc.sitaram_poc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_internet_gateway" "sitaram_poc_ig" {
@@ -290,6 +327,11 @@ resource "aws_instance" "webserver_a" {
     tags = {
         Name = "Webserver A"
     }
+    user_data = <<-EOF
+                #!/bin/bash
+                echo "Hello, World" > index.html
+                nohup busybox httpd -f -p ${var.server_port} &
+              EOF
 }
 
 resource "aws_instance" "webserver_b" {
@@ -301,6 +343,11 @@ resource "aws_instance" "webserver_b" {
     tags = {
         Name = "Webserver B"
     }
+    user_data = <<-EOF
+                #!/bin/bash
+                echo "Hello, World" > index.html
+                nohup busybox httpd -f -p ${var.server_port} &
+              EOF
 }
 
 resource "aws_db_subnet_group" "rds_sg" {
@@ -324,4 +371,52 @@ resource "aws_db_instance" "rds" {
     parameter_group_name = "default.mysql5.7"
     db_subnet_group_name = aws_db_subnet_group.rds_sg.name
     vpc_security_group_ids = [aws_security_group.rds_sg.id]
+}
+
+resource "aws_lb" "webserver_alb" {
+  name               = "terraform-asg-example"
+  load_balancer_type = "application"
+  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  security_groups    = [aws_security_group.webserver_alb_sg.id]
+}
+
+resource "aws_lb_listener" "webserver" {
+  load_balancer_arn = aws_lb.webserver_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "webserver_alb_tg" {
+  name     = "webserver-alb-tg"
+  port     = var.server_port
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.sitaram_poc.id
+
+  health_check {
+    path                = "/"
+    port                = var.server_port
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 15
+    timeout             = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+resource "aws_lb_target_group_attachment" "webserver_a" {
+  target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
+  target_id        = aws_instance.webserver_a.id
+  port             = var.server_port
+}
+
+resource "aws_lb_target_group_attachment" "webserver_b" {
+  target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
+  target_id        = aws_instance.webserver_b.id
+  port             = var.server_port
 }
