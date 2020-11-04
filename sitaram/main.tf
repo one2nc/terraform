@@ -6,6 +6,14 @@ output "webserver_private_key" {
   value = tls_private_key.webserver.private_key_pem
 }
 
+output "bastian_a_public_ip" {
+  value = aws_instance.bastion_a.public_ip
+}
+
+output "bastian_b_public_ip" {
+  value = aws_instance.bastion_b.public_ip
+}
+
 resource "tls_private_key" "bastion" {
   algorithm = "RSA"
 }
@@ -35,6 +43,9 @@ provider "aws" {
 
 resource "aws_vpc" "sitaram_poc" {
     cidr_block = "10.0.0.0/16"
+    tags = {
+        Name = "Sitaram POC"
+    }
 }
 
 resource "aws_subnet" "public_a" {
@@ -78,11 +89,12 @@ resource "aws_subnet" "private_b" {
 }
 
 resource "aws_security_group" "public_subnet_sg" {
-    name = "webserver-lb"
+    name = "public_subnet_sg"
+    vpc_id = aws_vpc.sitaram_poc.id
     ingress {
         from_port = 22
         to_port = 22
-        protocol = "ssh"
+        protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 
@@ -95,7 +107,8 @@ resource "aws_security_group" "public_subnet_sg" {
 }
 
 resource "aws_security_group" "private_subnet_sg" {
-    name = "webserver-lb"
+    name = "private_subnet_sg"
+    vpc_id = aws_vpc.sitaram_poc.id
     ingress {
         from_port = 0
         to_port = 0
@@ -108,6 +121,24 @@ resource "aws_security_group" "private_subnet_sg" {
         to_port = 0
         protocol = "-1"
         cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "rds_sg" {
+    name = "rds_sg"
+    vpc_id = aws_vpc.sitaram_poc.id
+    ingress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["10.0.3.0/24", "10.0.4.0/24"]
+    }
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["10.0.3.0/24", "10.0.4.0/24"]
     }
 }
 
@@ -229,7 +260,7 @@ resource "aws_route_table_association" "nat_rt_astn_b" {
 
 
 resource "aws_instance" "bastion_a" {
-    ami = "ami-0c55b159cbfafe1f0"
+    ami = "ami-0cda377a1b884a1bc"
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.public_subnet_sg.id]
     subnet_id = aws_subnet.public_a.id
@@ -240,7 +271,7 @@ resource "aws_instance" "bastion_a" {
 }
 
 resource "aws_instance" "bastion_b" {
-    ami = "ami-0c55b159cbfafe1f0"
+    ami = "ami-0cda377a1b884a1bc"
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.public_subnet_sg.id]
     subnet_id = aws_subnet.public_b.id
@@ -251,7 +282,7 @@ resource "aws_instance" "bastion_b" {
 }
 
 resource "aws_instance" "webserver_a" {
-    ami = "ami-0c55b159cbfafe1f0"
+    ami = "ami-0cda377a1b884a1bc"
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
     subnet_id = aws_subnet.private_a.id
@@ -262,7 +293,7 @@ resource "aws_instance" "webserver_a" {
 }
 
 resource "aws_instance" "webserver_b" {
-    ami = "ami-0c55b159cbfafe1f0"
+    ami = "ami-0cda377a1b884a1bc"
     instance_type = "t3.nano"
     vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
     subnet_id = aws_subnet.private_b.id
@@ -270,6 +301,15 @@ resource "aws_instance" "webserver_b" {
     tags = {
         Name = "Webserver B"
     }
+}
+
+resource "aws_db_subnet_group" "rds_sg" {
+  name       = "rds_private_sg"
+  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+
+  tags = {
+    Name = "Sitaram RDS SG"
+  }
 }
 
 resource "aws_db_instance" "rds" {
@@ -280,8 +320,8 @@ resource "aws_db_instance" "rds" {
     instance_class       = "db.t2.micro"
     name                 = "mydb"
     username             = "sitaram"
-    password             = "batman"
+    password             = "batmanandrobin"
     parameter_group_name = "default.mysql5.7"
-    db_subnet_group_name = "private_a"
-    vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
+    db_subnet_group_name = aws_db_subnet_group.rds_sg.name
+    vpc_security_group_ids = [aws_security_group.rds_sg.id]
 }
