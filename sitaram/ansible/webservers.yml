@@ -1,0 +1,13 @@
+---
+- hosts: webservers
+  remote_user: ubuntu
+  tasks:
+    - name: simple connection test
+      ping:
+    - name: Install nginx latest
+      become: true
+      apt: name=nginx state=latest
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
