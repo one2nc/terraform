@@ -1,0 +1,21 @@
+Host bastion_a
+    HostName 65.0.101.234
+    User ubuntu
+    IdentityFile ../terraform/bastion.key
+
+Host bastion_b
+    HostName 65.0.107.121
+    User ubuntu
+    IdentityFile ../terraform/bastion.key
+
+Host webserver_a
+    HostName 10.0.3.73
+    User ubuntu
+    IdentityFile ../terraform/web.key
+    ProxyCommand ssh -W %h:%p -F ssh_config bastion_a
+
+Host webserver_b
+    HostName 10.0.4.177
+    User ubuntu
+    IdentityFile ../terraform/web.key
+    ProxyCommand ssh -W %h:%p -F ssh_config bastion_a
