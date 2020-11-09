@@ -1,26 +1,26 @@
 resource "aws_security_group" "webserver_alb_sg" {
   name = "webserver_alb_sg"
-  vpc_id = aws_vpc.sitaram_poc.id
+  vpc_id = aws_vpc.main_vpc.id
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.default_route]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.default_route]
   }
 }
 
 resource "aws_lb" "webserver_alb" {
   name               = "terraform-asg-example"
   load_balancer_type = "application"
-  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  subnets            = aws_subnet.public[*].id
   security_groups    = [aws_security_group.webserver_alb_sg.id]
 }
 
@@ -39,7 +39,7 @@ resource "aws_lb_target_group" "webserver_alb_tg" {
   name     = "webserver-alb-tg"
   port     = var.server_port
   protocol = "HTTP"
-  vpc_id   = aws_vpc.sitaram_poc.id
+  vpc_id   = aws_vpc.main_vpc.id
 
   health_check {
     path                = "/"
@@ -53,14 +53,9 @@ resource "aws_lb_target_group" "webserver_alb_tg" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "webserver_a" {
+resource "aws_lb_target_group_attachment" "webserver" {
+  count = null_resource.azs_count.triggers.total
   target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
-  target_id        = aws_instance.webserver_a.id
-  port             = var.server_port
-}
-
-resource "aws_lb_target_group_attachment" "webserver_b" {
-  target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
-  target_id        = aws_instance.webserver_b.id
+  target_id        = aws_instance.webserver[count.index].id
   port             = var.server_port
 }
