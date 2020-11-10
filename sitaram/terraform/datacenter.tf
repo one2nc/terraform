@@ -85,7 +85,7 @@ resource "aws_subnet" "public" {
     vpc_id     = aws_vpc.main_vpc.id
     cidr_block = cidrsubnet(var.vpc_cidr, 8, count.index)
     map_public_ip_on_launch = true
-    availability_zone = lookup(null_resource.az_names, count.index)
+    availability_zone = data.aws_availability_zones.az_list.names[count.index]
 
     tags = null_resource.tags.triggers
 }
@@ -95,9 +95,9 @@ resource "aws_subnet" "private" {
     vpc_id     = aws_vpc.main_vpc.id
     cidr_block = cidrsubnet(var.vpc_cidr, 8, null_resource.az_count.triggers.total + count.index)
     map_public_ip_on_launch = false
-    availability_zone = lookup(null_resource.az_names, count.index)
+    availability_zone = data.aws_availability_zones.az_list.names[count.index]
 
-    tags = null_resource.tags.triggers.tags
+    tags = null_resource.tags.triggers
 }
 
 resource "aws_security_group" "public_sg" {
@@ -165,6 +165,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_route_table" "public_subnet_rt" {
+  count = null_resource.az_count.triggers.total
   depends_on = [
     aws_vpc.main_vpc,
     aws_internet_gateway.main_vpc_ig
@@ -174,6 +175,7 @@ resource "aws_route_table" "public_subnet_rt" {
 }
 
 resource "aws_route_table" "private_subnet_rt" {
+  count = null_resource.az_count.triggers.total
   depends_on = [
     aws_vpc.main_vpc,
     aws_internet_gateway.main_vpc_ig
@@ -199,13 +201,13 @@ resource "aws_route" "private" {
 resource "aws_route_table_association" "public" {
   count = null_resource.az_count.triggers.total
   subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public_subnet_rt.id
+  route_table_id = aws_route_table.public_subnet_rt[count.index].id
 }
 
 resource "aws_route_table_association" "private" {
   count = null_resource.az_count.triggers.total
   subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private_subnet_rt.id
+  route_table_id = aws_route_table.private_subnet_rt[count.index].id
 }
 
 resource "aws_instance" "bastion" {

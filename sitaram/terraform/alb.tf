@@ -59,7 +59,7 @@ resource "aws_lb_target_group" "webserver_alb_tg" {
 }
 
 resource "aws_lb_target_group_attachment" "webserver" {
-  count = null_resource.az_count.triggers.total
+  count = var.service.count
   target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
   target_id        = aws_instance.webserver[count.index].id
   port             = 80

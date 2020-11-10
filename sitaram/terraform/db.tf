@@ -31,14 +31,14 @@ resource "aws_security_group" "rds_sg" {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = aws_subnet.private[*].cidr
+        cidr_blocks = aws_subnet.private[*].cidr_block
     }
 
     egress {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = aws_subnet.private[*].cidr
+        cidr_blocks = aws_subnet.private[*].cidr_block
     }
 }
 
