@@ -4,9 +4,9 @@ output "alb_dns_name" {
 }
 
 resource "aws_security_group" "webserver_alb_sg" {
-  name = "webserver_alb_sg"
-  vpc_id = aws_vpc.main_vpc.id
-
+  name                   = "${local.project_prefix}_alb_sg"
+  vpc_id                 = aws_vpc.main_vpc.id
+  revoke_rules_on_delete = true
   ingress {
     from_port   = 80
     to_port     = 80
@@ -23,7 +23,7 @@ resource "aws_security_group" "webserver_alb_sg" {
 }
 
 resource "aws_lb" "webserver_alb" {
-  name               = "terraform-asg-example"
+  name               = "${local.project_prefix}-web-alb"
   load_balancer_type = "application"
   subnets            = aws_subnet.public[*].id
   security_groups    = [aws_security_group.webserver_alb_sg.id]
@@ -59,7 +59,7 @@ resource "aws_lb_target_group" "webserver_alb_tg" {
 }
 
 resource "aws_lb_target_group_attachment" "webserver" {
-  count = var.service.count
+  count            = var.service.count
   target_group_arn = aws_lb_target_group.webserver_alb_tg.arn
   target_id        = aws_instance.webserver[count.index].id
   port             = 80
