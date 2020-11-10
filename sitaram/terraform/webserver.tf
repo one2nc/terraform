@@ -1,31 +1,17 @@
-resource "aws_instance" "webserver_a" {
-    ami = "ami-0cda377a1b884a1bc"
-    instance_type = "t3.nano"
-    vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
-    subnet_id = aws_subnet.private_a.id
-    key_name = aws_key_pair.webserver.key_name
-    tags = {
-        Name = "Webserver A"
-    }
-    user_data = <<-EOF
-                #!/bin/bash
-                echo "Hello, World" > index.html
-                nohup busybox httpd -f -p ${var.server_port} &
-              EOF
+variable "service" {
+    type = object({
+        count = number
+        ami = string
+        type = string
+    })
 }
 
-resource "aws_instance" "webserver_b" {
-    ami = "ami-0cda377a1b884a1bc"
-    instance_type = "t3.nano"
-    vpc_security_group_ids = [aws_security_group.private_subnet_sg.id]
-    subnet_id = aws_subnet.private_b.id
+resource "aws_instance" "webserver" {
+    count = var.service.count
+    ami = var.service.ami
+    instance_type = var.service.type
+    vpc_security_group_ids = aws_security_group.private_sg[*].id
+    subnet_id = aws_subnet.private[count.index].id
     key_name = aws_key_pair.webserver.key_name
-    tags = {
-        Name = "Webserver B"
-    }
-    user_data = <<-EOF
-                #!/bin/bash
-                echo "Hello, World" > index.html
-                nohup busybox httpd -f -p ${var.server_port} &
-              EOF
+    tags = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}_webserver"))
 }

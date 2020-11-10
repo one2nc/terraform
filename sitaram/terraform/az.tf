@@ -4,12 +4,12 @@ data "aws_availability_zones" "az_list" {
 
 resource "null_resource" "az_names" {
     triggers = {
-        names = data.aws_availability_zones.available.names
+        names = join(",", data.aws_availability_zones.az_list.names)
     }
 }
 
 resource "null_resource" "az_count" {
     triggers = {
-        total = length(null_resource.az_names.triggers.names)
+        total = length(split(",", null_resource.az_names.triggers.names))
     }
 }
