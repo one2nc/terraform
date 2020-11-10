@@ -213,7 +213,7 @@ resource "aws_route_table_association" "private" {
 }
 
 resource "aws_instance" "bastion" {
-  count                  = null_resource.az_count.triggers.total
+  count                  = var.bastion.count
   ami                    = var.bastion.ami
   instance_type          = var.bastion.type
   vpc_security_group_ids = [aws_security_group.public_sg.id]
