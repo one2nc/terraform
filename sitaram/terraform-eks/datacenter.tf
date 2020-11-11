@@ -1,54 +1,54 @@
 variable "project_name" {
-    type = string
+  type = string
 }
 variable "env" {
-    type = string
+  type = string
 }
 
 variable "vpc_cidr" {
-    type = string
+  type = string
 }
 
 variable "meta" {
-    type = object({
-        author = string
-    })
+  type = object({
+    author = string
+  })
 }
 
 locals {
   project_prefix = "${var.project_name}-${var.env}"
-  default_route = "0.0.0.0/0"
+  default_route  = "0.0.0.0/0"
 }
 
 resource "null_resource" "tags" {
-    triggers = {
-        author = var.meta.author
-    }
+  triggers = {
+    author = var.meta.author
+  }
 }
 
 resource "aws_vpc" "eks_vpc" {
-    cidr_block = var.vpc_cidr
-    tags = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}-vpc"))
+  cidr_block = var.vpc_cidr
+  tags       = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}-vpc"))
 }
 
 # EKS specific Tags addes as per documentation at
 # https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html
 resource "aws_subnet" "public" {
-    count = null_resource.azs.triggers.count
-    vpc_id = aws_vpc.eks_vpc.id
-    cidr_block = cidrsubnet(var.vpc_cidr, 8, count.index)
-    map_public_ip_on_launch = true
-    availability_zone = data.aws_availability_zones.available_zones.names[count.index]
-    tags = merge(null_resource.tags.triggers, {"kubernetes.io/role/elb": "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}": "shared", "Name": "${local.project_prefix}-public"})
+  count                   = null_resource.azs.triggers.count
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
+  tags                    = merge(null_resource.tags.triggers, { "kubernetes.io/role/elb" : "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" : "shared", "Name" : "${local.project_prefix}-public" })
 }
 
 resource "aws_subnet" "private" {
-    count = null_resource.azs.triggers.count
-    vpc_id = aws_vpc.eks_vpc.id
-    cidr_block = cidrsubnet(var.vpc_cidr, 8, null_resource.azs.triggers.count+count.index)
-    map_public_ip_on_launch = false
-    availability_zone = data.aws_availability_zones.available_zones.names[count.index]
-    tags = merge(null_resource.tags.triggers, {"kubernetes.io/role/internal-elb": "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}": "shared", "Name": "${local.project_prefix}-public"})
+  count                   = null_resource.azs.triggers.count
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, null_resource.azs.triggers.count + count.index)
+  map_public_ip_on_launch = false
+  availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
+  tags                    = merge(null_resource.tags.triggers, { "kubernetes.io/role/internal-elb" : "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" : "shared", "Name" : "${local.project_prefix}-public" })
 }
 
 resource "aws_security_group" "public_sg" {
