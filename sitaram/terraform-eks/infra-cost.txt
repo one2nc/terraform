@@ -1,0 +1,27 @@
+
+  NAME                         MONTHLY QTY  UNIT   PRICE   HOURLY COST  MONTHLY COST  
+
+  aws_eip.nat[0]                                                                      
+  └─ IP address (if unused)              -  hours  0.0050            -             -  
+  Total                                                              -             -  
+                                                                                      
+  aws_eip.nat[1]                                                                      
+  └─ IP address (if unused)              -  hours  0.0050            -             -  
+  Total                                                              -             -  
+                                                                                      
+  aws_eks_cluster.eks_cluster                                                         
+  └─ EKS cluster                       730  hours  0.1000       0.1000       73.0000  
+  Total                                                         0.1000       73.0000  
+                                                                                      
+  aws_nat_gateway.nat[0]                                                              
+  ├─ NAT gateway                       730  hours  0.0560       0.0560       40.8800  
+  └─ Data processed                      -  GB     0.0560            -             -  
+  Total                                                         0.0560       40.8800  
+                                                                                      
+  aws_nat_gateway.nat[1]                                                              
+  ├─ NAT gateway                       730  hours  0.0560       0.0560       40.8800  
+  └─ Data processed                      -  GB     0.0560            -             -  
+  Total                                                         0.0560       40.8800  
+                                                                                      
+  OVERALL TOTAL (USD)                                           0.2120      154.7600  
+
