@@ -33,11 +33,20 @@ variable "eks_version" {
   default = "1.18"
 }
 
+variable "workers" {
+    type = list(object({
+        instance_type = string
+        name = string
+        max_size = number
+        min_size = number
+        desired = number
+    }))
+}
+
 resource "null_resource" "eks_cluster" {
   triggers = {
     name = "${local.project_prefix}-cluster"
   }
-
 }
 
 module "eks" {
@@ -49,6 +58,17 @@ module "eks" {
   tags = null_resource.tags.triggers
 
   vpc_id = module.vpc.vpc_id
+
+  worker_groups = [
+    for worker in var.workers: {
+        name = worker.name
+        instance_type = worker.instance_type
+        asg_desired_capacity = worker.desired
+        asg_max_size = worker.max_size
+        asg_min_size = worker.min_size
+        additional_security_group_ids = [aws_security_group.worker_group_mgmt.id]
+    }
+  ]
 }
 
 data "aws_eks_cluster" "cluster" {

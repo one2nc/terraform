@@ -68,104 +68,17 @@ module "vpc" {
   }
 }
 
+resource "aws_security_group" "worker_group_mgmt" {
+  name_prefix = "worker_group_mgmt"
+  vpc_id      = module.vpc.vpc_id
 
-resource "aws_security_group" "public_sg" {
-  name   = "${local.project_prefix}-public-sg"
-  vpc_id = module.vpc.vpc_id
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [local.default_route]
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      var.vpc_cidr,
+    ]
   }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [local.default_route]
-  }
-}
-
-resource "aws_security_group" "private_sg" {
-  name   = "${local.project_prefix}-private-sg"
-  vpc_id = module.vpc.vpc_id
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = null_resource.public_subnet[*].triggers.cidr_block
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [local.default_route]
-  }
-}
-
-resource "aws_internet_gateway" "eks_vpc_ig" {
-  vpc_id = module.vpc.vpc_id
-
-  tags = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}-ig"))
-}
-
-resource "aws_eip" "nat" {
-  count = null_resource.azs.triggers.count
-  vpc   = true
-}
-
-resource "aws_nat_gateway" "nat" {
-  count         = null_resource.azs.triggers.count
-  allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = null_resource.public_subnet[count.index].id
-
-  tags       = null_resource.tags.triggers
-  depends_on = [aws_internet_gateway.eks_vpc_ig]
-}
-
-resource "aws_route_table" "public_subnet_rt" {
-  count = null_resource.azs.triggers.count
-  depends_on = [
-    module.vpc,
-    aws_internet_gateway.eks_vpc_ig
-  ]
-  vpc_id = module.vpc.vpc_id
-  tags   = merge(null_resource.tags.triggers, map("name", "${local.project_prefix}-public-rt"))
-}
-
-resource "aws_route_table" "private_subnet_rt" {
-  count = null_resource.azs.triggers.count
-  depends_on = [
-    module.vpc,
-    aws_internet_gateway.eks_vpc_ig
-  ]
-  vpc_id = module.vpc.vpc_id
-  tags   = merge(null_resource.tags.triggers, map("name", "${local.project_prefix}-private-rt"))
-}
-
-resource "aws_route" "public" {
-  count                  = null_resource.azs.triggers.count
-  route_table_id         = aws_route_table.public_subnet_rt[count.index].id
-  destination_cidr_block = local.default_route
-  gateway_id             = aws_internet_gateway.eks_vpc_ig.id
-}
-resource "aws_route" "private" {
-  count                  = null_resource.azs.triggers.count
-  route_table_id         = aws_route_table.private_subnet_rt[count.index].id
-  destination_cidr_block = local.default_route
-  nat_gateway_id         = aws_nat_gateway.nat[count.index].id
-}
-
-resource "aws_route_table_association" "public" {
-  count          = null_resource.azs.triggers.count
-  subnet_id      = null_resource.private_subnet[count.index].id
-  route_table_id = aws_route_table.public_subnet_rt[count.index].id
-}
-
-resource "aws_route_table_association" "private" {
-  count          = null_resource.azs.triggers.count
-  subnet_id      = null_resource.private_subnet[count.index].id
-  route_table_id = aws_route_table.private_subnet_rt[count.index].id
 }
