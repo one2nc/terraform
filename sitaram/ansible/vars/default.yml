@@ -1,0 +1,15 @@
+---
+#System Settings
+php_modules: [ 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip' ]
+
+#MySQL Settings
+mysql_root_password: "mysql_root_password"
+mysql_db: "wordpressdb"
+mysql_user: "sitaram"
+mysql_password: "batmanandrobin"
+mysql_host: "terraform-20201106035442706600000001.crggjkk9vn3o.ap-south-1.rds.amazonaws.com"
+
+#HTTP Settings
+http_host: "sitraram-wp"
+http_conf: "sitaram-wp.conf"
+http_port: "80"

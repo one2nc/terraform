@@ -1,0 +1,33 @@
+---
+- hosts: webservers
+  remote_user: ubuntu
+  tasks:
+    - name: simple connection test
+      ping:
+    - name: Install nginx latest
+      become: true
+      apt: name=nginx state=latest
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
+    - name: copy the nginx config file and restart nginx
+      copy:
+        src: ./static.cfg
+        dest: /etc/nginx/sites-available/static_site.cfg
+      become: yes
+    - name: create symlink
+      file:
+        src: /etc/nginx/sites-available/static_site.cfg
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+      become: yes
+    - name: copy the content of the web site
+      copy:
+        src: ./static-site/
+        dest: /home/ubuntu/static-site
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+      become: yes
