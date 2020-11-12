@@ -26,34 +26,52 @@ resource "null_resource" "tags" {
   }
 }
 
-resource "aws_vpc" "eks_vpc" {
-  cidr_block = var.vpc_cidr
-  tags       = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}-vpc"))
+resource "null_resource" "public_subnet" {
+  count = null_resource.azs.triggers.count
+  triggers = {
+      cidr_block = cidrsubnet(var.vpc_cidr, 8, count.index)
+  }
 }
 
-# EKS specific Tags addes as per documentation at
-# https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html
-resource "aws_subnet" "public" {
-  count                   = null_resource.azs.triggers.count
-  vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
-  map_public_ip_on_launch = true
-  availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
-  tags                    = merge(null_resource.tags.triggers, { "kubernetes.io/role/elb" : "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" : "shared", "Name" : "${local.project_prefix}-public" })
+resource "null_resource" "private_subnet" {
+  count = null_resource.azs.triggers.count
+  triggers = {
+      cidr_block = cidrsubnet(var.vpc_cidr, 8, null_resource.azs.triggers.count+count.index)
+  }
 }
 
-resource "aws_subnet" "private" {
-  count                   = null_resource.azs.triggers.count
-  vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 8, null_resource.azs.triggers.count + count.index)
-  map_public_ip_on_launch = false
-  availability_zone       = data.aws_availability_zones.available_zones.names[count.index]
-  tags                    = merge(null_resource.tags.triggers, { "kubernetes.io/role/internal-elb" : "1", "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" : "shared", "Name" : "${local.project_prefix}-public" })
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.6.0"
+
+  name                 = "${local.project_prefix}-vpc"
+  cidr                 = var.vpc_cidr
+  azs                  = split(",", null_resource.az_names.triggers.list)
+  private_subnets      = null_resource.private_subnet[*].triggers.cidr_block
+  public_subnets       = null_resource.public_subnet[*].triggers.cidr_block
+  enable_nat_gateway   = true
+  single_nat_gateway   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" = "shared",
+  }
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" = "shared"
+    "kubernetes.io/role/elb"                      = "1"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${null_resource.eks_cluster.triggers.name}" = "shared"
+    "kubernetes.io/role/internal-elb"             = "1"
+  }
 }
+
 
 resource "aws_security_group" "public_sg" {
   name   = "${local.project_prefix}-public-sg"
-  vpc_id = aws_vpc.eks_vpc.id
+  vpc_id = module.vpc.vpc_id
   ingress {
     from_port   = 443
     to_port     = 443
@@ -71,12 +89,12 @@ resource "aws_security_group" "public_sg" {
 
 resource "aws_security_group" "private_sg" {
   name   = "${local.project_prefix}-private-sg"
-  vpc_id = aws_vpc.eks_vpc.id
+  vpc_id = module.vpc.vpc_id
   ingress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = aws_subnet.public[*].cidr_block
+    cidr_blocks = null_resource.public_subnet[*].triggers.cidr_block
   }
 
   egress {
@@ -88,7 +106,7 @@ resource "aws_security_group" "private_sg" {
 }
 
 resource "aws_internet_gateway" "eks_vpc_ig" {
-  vpc_id = aws_vpc.eks_vpc.id
+  vpc_id = module.vpc.vpc_id
 
   tags = merge(null_resource.tags.triggers, map("Name", "${local.project_prefix}-ig"))
 }
@@ -101,7 +119,7 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "nat" {
   count         = null_resource.azs.triggers.count
   allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.public[count.index].id
+  subnet_id     = null_resource.public_subnet[count.index].id
 
   tags       = null_resource.tags.triggers
   depends_on = [aws_internet_gateway.eks_vpc_ig]
@@ -110,20 +128,20 @@ resource "aws_nat_gateway" "nat" {
 resource "aws_route_table" "public_subnet_rt" {
   count = null_resource.azs.triggers.count
   depends_on = [
-    aws_vpc.eks_vpc,
+    module.vpc,
     aws_internet_gateway.eks_vpc_ig
   ]
-  vpc_id = aws_vpc.eks_vpc.id
+  vpc_id = module.vpc.vpc_id
   tags   = merge(null_resource.tags.triggers, map("name", "${local.project_prefix}-public-rt"))
 }
 
 resource "aws_route_table" "private_subnet_rt" {
   count = null_resource.azs.triggers.count
   depends_on = [
-    aws_vpc.eks_vpc,
+    module.vpc,
     aws_internet_gateway.eks_vpc_ig
   ]
-  vpc_id = aws_vpc.eks_vpc.id
+  vpc_id = module.vpc.vpc_id
   tags   = merge(null_resource.tags.triggers, map("name", "${local.project_prefix}-private-rt"))
 }
 
@@ -142,12 +160,12 @@ resource "aws_route" "private" {
 
 resource "aws_route_table_association" "public" {
   count          = null_resource.azs.triggers.count
-  subnet_id      = aws_subnet.public[count.index].id
+  subnet_id      = null_resource.private_subnet[count.index].id
   route_table_id = aws_route_table.public_subnet_rt[count.index].id
 }
 
 resource "aws_route_table_association" "private" {
   count          = null_resource.azs.triggers.count
-  subnet_id      = aws_subnet.private[count.index].id
+  subnet_id      = null_resource.private_subnet[count.index].id
   route_table_id = aws_route_table.private_subnet_rt[count.index].id
 }
