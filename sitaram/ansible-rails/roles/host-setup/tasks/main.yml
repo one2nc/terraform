@@ -1,0 +1,6 @@
+---
+# tasks file for host-setup
+- import_tasks:  install.yml
+- import_tasks:  verify_app_dir.yml
+
+

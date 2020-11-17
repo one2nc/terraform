@@ -1,0 +1,16 @@
+---
+- name: "Install tools"
+  include_role:
+    name: '{{ item }}' 
+  loop:
+    - geerlingguy.git
+    - geerlingguy.nodejs
+    - geerlingguy.ruby
+    - geerlingguy.passenger
+- name: "Install libs"
+  apt:
+    name:
+      - libsqlite3-dev
+      - libreadline-dev
+      - tzdata
+      - zlib1g-dev

@@ -1,0 +1,21 @@
+---
+http_port: 3000
+ansible_ssh_private_key_file: '.vagrant/machines/default/virtualbox/private_key'
+ansible_ssh_user: 'vagrant'
+app_environment:
+  RAILS_ENV: 'production'
+app_version: 2.0.1
+app_user: www-data
+app_directory: /opt/demo-rails-app
+app_secrets: 
+  production: fe562ec1e21eecc5af4d83f6a157a7
+passenger_server_name: 0.0.0.0
+passenger_app_root: /opt/demo-rails-app/public
+passenger_app_env: production
+passenger_ruby: /usr/local/bin/ruby
+
+ruby_install_from_source: true
+ruby_download_url: https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.0.tar.gz
+ruby_version: 2.6.0
+
+nodejs_install_npm_user: root

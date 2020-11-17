@@ -1,0 +1,5 @@
+---
+# defaults file for host-setup
+skip_setup: False
+app_directory: /opt/demo-rails-app
+app_user: www-data
