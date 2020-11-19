@@ -5,7 +5,7 @@
   loop:
     - geerlingguy.git
     - geerlingguy.nodejs
-    - geerlingguy.ruby
+    - rvm.ruby
     - geerlingguy.passenger
 - name: "Install libs"
   apt:

@@ -1,9 +1,12 @@
 ---
 http_port: 3000
-ansible_ssh_private_key_file: '.vagrant/machines/default/virtualbox/private_key'
-ansible_ssh_user: 'vagrant'
+# ansible_ssh_private_key_file: '.vagrant/machines/default/virtualbox/private_key'
+ansible_ssh_private_key_file: './terraform/webserver_private_key.pem'
+# ansible_ssh_user: 'vagrant'
+ansible_ssh_user: 'ubuntu'
 app_environment:
   RAILS_ENV: 'production'
+  PATH: "$PATH:/root/.rvm/gems/2.6.0/bin/"
 app_version: 2.0.1
 app_user: www-data
 app_directory: /opt/demo-rails-app
@@ -12,10 +15,8 @@ app_secrets:
 passenger_server_name: 0.0.0.0
 passenger_app_root: /opt/demo-rails-app/public
 passenger_app_env: production
-passenger_ruby: /usr/local/bin/ruby
-
-ruby_install_from_source: true
-ruby_download_url: https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.0.tar.gz
-ruby_version: 2.6.0
-
+passenger_ruby: /usr/bin/ruby
+rvm1_rubies:
+  - 'ruby-2.6.0'
+rvm1_user: 'root'
 nodejs_install_npm_user: root
