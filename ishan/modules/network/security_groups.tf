@@ -18,6 +18,7 @@ resource "aws_security_group" "default_http_ssh" {
     to_port          = 80
     protocol         = "tcp"
     cidr_blocks      = [aws_vpc.main.cidr_block]
+    security_groups  = [aws_security_group.alb_default_sec_grp.id]
   }
 
   ingress {
@@ -108,4 +109,28 @@ resource "aws_security_group" "rds_sec_grp" {
   }
 }
 
+# Create Security Group for Application Load Balancer
+resource "aws_security_group" "alb_default_sec_grp" {
+  name        = "alb-main-sec-group"
+  description = "Allow inbound http(s) and ssh traffic"
+  vpc_id      = aws_vpc.main.id
 
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "alb-main-sec-group"
+  }
+}

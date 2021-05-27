@@ -42,3 +42,8 @@ output "rds_security_group_id" {
   description = "The ID of the RDS security group"
   value       = aws_security_group.rds_sec_grp.id
 }
+
+output "alb_default_sec_grp_id" {
+  description = "The ID of the default ALB security group"
+  value       = aws_security_group.alb_default_sec_grp.id
+}
