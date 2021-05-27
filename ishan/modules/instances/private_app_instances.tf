@@ -1,4 +1,4 @@
-resource "aws_instance" "app_instance1" {
+resource "aws_instance" "app_private_instance1" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
   key_name               = aws_key_pair.instance_key.id
@@ -6,7 +6,6 @@ resource "aws_instance" "app_instance1" {
   vpc_security_group_ids = [var.private_security_group_id]
 
   tags = {
-    Name = "app-instance1"
+    Name = "app-private-instance1"
   }
 }
-
