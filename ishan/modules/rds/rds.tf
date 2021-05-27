@@ -1,4 +1,4 @@
-resource "aws_db_subnet_group" "rds-subnet" {
+resource "aws_db_subnet_group" "rds_subnet" {
   name       = "rds-subnet"
   subnet_ids = [var.private_subnet1_id, var.private_subnet2_id]
 
@@ -8,7 +8,7 @@ resource "aws_db_subnet_group" "rds-subnet" {
 }
 
 # Create MySql RDS instance
-resource "aws_db_instance" "app-rds" {
+resource "aws_db_instance" "app_rds_mysql" {
   allocated_storage      = 10
   engine                 = "mysql"
   engine_version         = "5.7"
@@ -18,6 +18,6 @@ resource "aws_db_instance" "app-rds" {
   password               = var.rds_password
   parameter_group_name   = "default.mysql5.7"
   skip_final_snapshot    = true
-  db_subnet_group_name   = aws_db_subnet_group.rds-subnet.id
-  vpc_security_group_ids = [aws_security_group.rds-sec-grp.id]
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet.id
+  vpc_security_group_ids = [var.rds_security_group_id]
 }

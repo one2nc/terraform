@@ -48,11 +48,3 @@ variable "private_subnet2" {
 variable "my_ip" {
   type = string
 }
-
-variable "key_name" {
-  type = string
-}
-
-variable "public_key" {
-  type = string
-}

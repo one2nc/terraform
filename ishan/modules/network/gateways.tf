@@ -8,7 +8,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 # Create an Elastic IP for NAT
-resource "aws_eip" "nat-eip" {
+resource "aws_eip" "nat_eip" {
   vpc      = true
 
   tags = {
@@ -18,8 +18,8 @@ resource "aws_eip" "nat-eip" {
 
 # Create a NAT Gateway
 resource "aws_nat_gateway" "ngw" {
-  allocation_id = aws_eip.nat-eip.id
-  subnet_id     = aws_subnet.public-subnet1.id
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnet1.id
 
   tags = {
     Name = "${var.vpc.name}-ngw"

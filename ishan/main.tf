@@ -16,19 +16,31 @@ module "network" {
   source = "./modules/network"
 
   my_ip = var.my_ip
-  key_name = var.key_name
-  public_key = var.public_key
 }
 
-module "app" {
-  source = "./modules/app"
+module "instances" {
+  source = "./modules/instances"
 
-  vpc_id             = module.network.vpc_id
-  private_subnet1_id  = module.network.private_subnet1_id
-  private_subnet2_id = module.network.private_subnet2_id
-  vpc_cidr_block     = module.network.vpc_cidr_block
-  aws_key_pair_id    = module.network.aws_key_pair_id
-  rds_username       = var.rds_username
-  rds_password       = var.rds_password
+  key_name                  = var.key_name
+  public_key                = var.public_key
+  vpc_id                    = module.network.vpc_id
+  private_subnet1_id        = module.network.private_subnet1_id
+  private_subnet2_id        = module.network.private_subnet2_id
+  public_subnet1_id         = module.network.public_subnet1_id
+  public_subnet2_id         = module.network.public_subnet2_id
+  default_security_group_id = module.network.default_security_group_id
+  private_security_group_id = module.network.private_security_group_id
+}
+
+
+module "rds" {
+  source = "./modules/rds"
+
+  vpc_id                = module.network.vpc_id
+  private_subnet1_id    = module.network.private_subnet1_id
+  private_subnet2_id    = module.network.private_subnet2_id
+  rds_username          = var.rds_username
+  rds_password          = var.rds_password
+  rds_security_group_id = module.network.rds_security_group_id
 }
 
