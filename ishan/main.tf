@@ -32,6 +32,16 @@ module "instances" {
   private_security_group_id = module.network.private_security_group_id
 }
 
+module "load_balancers" {
+  source = "./modules/load_balancers"
+
+  vpc_id                  = module.network.vpc_id
+  public_subnet1_id       = module.network.public_subnet1_id
+  public_subnet2_id       = module.network.public_subnet2_id
+  alb_default_sec_grp_id  = module.network.alb_default_sec_grp_id
+  app_public_instance1_id = module.instances.app_public_instance1_id
+  app_public_instance2_id = module.instances.app_public_instance2_id
+}
 
 module "rds" {
   source = "./modules/rds"
