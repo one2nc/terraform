@@ -91,8 +91,8 @@ resource "aws_security_group" "rds_sec_grp" {
 
   ingress {
     description      = "TLS from VPC"
-    from_port        = 3306
-    to_port          = 3306
+    from_port        = 5432
+    to_port          = 5432
     protocol         = "tcp"
     cidr_blocks      = [aws_vpc.main.cidr_block]
   }
