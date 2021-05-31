@@ -21,7 +21,5 @@ git_branch: ishan-hello-terraform
 
 db_name: "myapp"
 db_user: "django"
-db_password: "{{ vault_db_password }}"
 django_user: "ishan"
-django_password:  "{{ vault_django_password }}"
 django_email: "ishan@one2n.in"

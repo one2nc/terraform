@@ -1,6 +1,9 @@
 ---
 
-- hosts: main
+- hosts: all
+  vars_files:
+    - ./group_vars/django.yml
+    - ./group_vars/django_vault.yml
   remote_user: ubuntu
   gather_facts: false
   become: yes
