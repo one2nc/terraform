@@ -1,0 +1,1 @@
+ansible-playbook -i hosts play.yml --ask-vault-pass --extra-vars='{"postgres_host": "RDS_POSTGRES_HOST", "postgres_password": "RDS_PASSWORD", "postgres_user": "RDS_USER", "github_private_key": "SSH_KEY_TO_GIT_REPO"}' -vvv
