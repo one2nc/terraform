@@ -1,2 +1,6 @@
-[main]
-"{{host_ip}}" ansible_ssh_private_key_file="/home/ishan/.ssh/terra_rsa"
+[app_instance1]
+35.170.71.1 ansible_ssh_private_key_file="/home/ishan/.ssh/terra_rsa"
+
+[app_instance2]
+3.89.90.198 ansible_ssh_private_key_file="/home/ishan/.ssh/terra_rsa"
+
