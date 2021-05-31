@@ -9,10 +9,9 @@ resource "aws_instance" "app_public_instance1" {
     Name = "app-instance1"
   }
 
-  provisioner "remote-exec" {
+  /*provisioner "remote-exec" {
     inline = [
       "sudo apt update",
-      "sudo apt -y install nginx"
     ]
 
     connection {
@@ -21,7 +20,7 @@ resource "aws_instance" "app_public_instance1" {
       private_key = file("${path.root}/.ssh/terra_rsa")
       host        = "${self.public_ip}"
     }
-  }
+  }*/
 }
 
 resource "aws_instance" "app_public_instance2" {
@@ -35,10 +34,9 @@ resource "aws_instance" "app_public_instance2" {
     Name = "app-instance2"
   }
 
-  provisioner "remote-exec" {
+  /*provisioner "remote-exec" {
     inline = [
       "sudo apt update",
-      "sudo apt -y install nginx"
     ]
 
     connection {
@@ -47,7 +45,7 @@ resource "aws_instance" "app_public_instance2" {
       private_key = file("${path.root}/.ssh/terra_rsa")
       host        = "${self.public_ip}"
     }
-  }
+  }*/
 
 }
 
