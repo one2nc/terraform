@@ -1,0 +1,16 @@
+[uwsgi]
+project = django_app
+uid = ubuntu
+base = /home/%(uid)/terraform/ishan
+
+chdir = %(base)/%(project)
+home = %(base)/env
+module = %(project).wsgi:application
+
+master = true
+processes = 2
+
+socket = /run/uwsgi/%(project).sock
+chown-socket = %(uid):www-data
+chmod-socket = 660
+vacuum = true

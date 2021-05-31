@@ -1,0 +1,87 @@
+---
+
+- name: Install apt packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  with_items: "{{ sytem_packages }}"
+
+- name: Create .ssh directory
+  file:
+    path: "{{ server_root }}/.ssh "
+    state: directory
+
+- name: Add github ssh key
+  copy:
+    content: "{{ github_private_key }}"
+    dest: "{{ server_root }}/.ssh/id_rsa"
+    owner: ubuntu
+    group: ubuntu
+    mode: 0600
+
+- name: Clone git repo
+  git: 
+    repo: "{{ git_repo }}"
+    version: "{{ git_branch }}"
+    dest: "{{ server_root }}"
+    accept_hostkey: yes
+    key_file: "{{ server_root }}/.ssh/id_rsa"
+    force: yes
+
+- name: Make sure postgresql server is running
+  service:
+    name: postgresql
+    state: started
+
+- name: Create postgres database
+  postgresql_db:
+    name: "{{ db_name }}"
+    login_host: "{{ postgres_host }}"
+    login_password: "{{ postgres_password }}"
+    login_user: "{{ postgres_user }}"
+  register: create_db
+
+- name: Create postgres database user
+  postgresql_user:
+    db: "{{ db_name }}"
+    login_host: "{{ postgres_host }}"
+    login_password: "{{ postgres_password }}"
+    login_user: "{{ postgres_user }}"
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: ALL
+  when: create_db.changed
+
+- name: Apply django settings template
+  template:
+    src: settings.py.j2
+    dest: "{{ app_root }}/{{ project_name }}"
+
+- name: Install application pip packages
+  pip:
+    requirements: "{{ app_root }}/requirements.txt"
+    virtualenv: "{{ virtual_env }}"
+    virtualenv_python: python3
+
+- name: Django make migrations
+  django_manage:
+    command: makemigrations
+    app_path: "{{ app_root }}"
+    virtualenv: "{{ virtual_env }}"
+
+- name: Django migrate
+  django_manage:
+    command: migrate
+    app_path: "{{ app_root }}"
+    virtualenv: "{{ virtual_env }}"
+
+- name: Django collectstatic
+  django_manage:
+    command: collectstatic
+    app_path: "{{ app_root }}"
+    virtualenv: "{{ virtual_env }}"
+
+- name: Create django superuser
+  django_manage:
+    command: "createsuperuser --noinput --username={{ django_user }} --email={{ django_email }}"

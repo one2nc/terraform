@@ -1,0 +1,27 @@
+---
+
+sytem_packages:
+  - python3-dev
+  - python3-pip
+  - gcc
+  - git
+  - libpq-dev
+  - postgresql
+  - postgresql-contrib
+  - python3-venv
+
+server_root: /home/ubuntu/
+project_root: /home/ubuntu/terraform/ishan
+project_name: django_app
+app_root: "{{ project_root }}/{{ project_name }}"
+virtual_env: "{{ project_root }}/env"
+
+git_repo: git@github.com:one2nc/terraform.git
+git_branch: ishan-hello-terraform
+
+db_name: "myapp"
+db_user: "django"
+db_password: "{{ vault_db_password }}"
+django_user: "ishan"
+django_password:  "{{ vault_django_password }}"
+django_email: "ishan@one2n.in"

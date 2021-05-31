@@ -1,0 +1,2 @@
+[main]
+"{{host_ip}}" ansible_ssh_private_key_file="/home/ishan/.ssh/terra_rsa"

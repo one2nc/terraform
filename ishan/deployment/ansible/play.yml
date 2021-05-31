@@ -1,0 +1,10 @@
+---
+
+- hosts: main
+  remote_user: ubuntu
+  gather_facts: false
+  become: yes
+  roles:
+    - django
+    - webserver
+

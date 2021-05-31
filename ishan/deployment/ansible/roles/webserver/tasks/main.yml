@@ -1,0 +1,43 @@
+---
+
+- name: Apply uwsgi service template
+  template:
+    src: uwgsi.service.j2
+    dest: /etc/systemd/system/uwsgi.service
+
+- name: Create uwsgi sites directory
+  file:
+    path: /etc/uwsgi/sites
+    state: directory
+
+- name: Apply uwsgi site template
+  template:
+    src: django_uwsgi.ini.j2
+    dest: /etc/uwsgi/sites/django_uwsgi.ini
+  notify: Restart Uwsgi
+
+- name: Update apt cache and install Nginx
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+
+- name: Apply Nginx template
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify: Restart Nginx
+
+- name: Enable new site
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+  notify: Restart Nginx
+
+- name: Allow all access to tcp port 80
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
