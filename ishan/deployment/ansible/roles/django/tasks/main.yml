@@ -7,14 +7,20 @@
     update_cache: yes
   with_items: "{{ sytem_packages }}"
 
+- name: Make sure psycopg2 is installed
+  pip:
+    name: psycopg2
+    state: present
+
+
 - name: Create .ssh directory
   file:
-    path: "{{ server_root }}/.ssh "
+    path: "{{ server_root }}/.ssh"
     state: directory
 
 - name: Add github ssh key
   copy:
-    content: "{{ github_private_key }}"
+    src: "{{ github_private_key }}"
     dest: "{{ server_root }}/.ssh/id_rsa"
     owner: ubuntu
     group: ubuntu
@@ -24,10 +30,11 @@
   git: 
     repo: "{{ git_repo }}"
     version: "{{ git_branch }}"
-    dest: "{{ server_root }}"
+    dest: "{{ server_root }}/terraform"
     accept_hostkey: yes
     key_file: "{{ server_root }}/.ssh/id_rsa"
     force: yes
+
 
 - name: Make sure postgresql server is running
   service:
@@ -51,18 +58,17 @@
     name: "{{ db_user }}"
     password: "{{ db_password }}"
     priv: ALL
-  when: create_db.changed
 
 - name: Apply django settings template
   template:
     src: settings.py.j2
-    dest: "{{ app_root }}/{{ project_name }}"
+    dest: "{{ app_root }}/{{ project_name }}/settings.py"
 
 - name: Install application pip packages
   pip:
     requirements: "{{ app_root }}/requirements.txt"
     virtualenv: "{{ virtual_env }}"
-    virtualenv_python: python3
+    virtualenv_command: /usr/bin/python3.8 -m venv
 
 - name: Django make migrations
   django_manage:
@@ -85,3 +91,5 @@
 - name: Create django superuser
   django_manage:
     command: "createsuperuser --noinput --username={{ django_user }} --email={{ django_email }}"
+    app_path: "{{ app_root }}"
+    virtualenv: "{{ virtual_env }}"

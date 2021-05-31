@@ -1,3 +1,5 @@
+import os
+
 """
 Django settings for django_app project.
 
@@ -25,7 +27,7 @@ SECRET_KEY = 'django-insecure-b9$86c7k@-0$7cj5nw$ck$^!rwri*o$%_z5ocv(dl5ouzs5(27
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["{{ host_ip }}", "127.0.0.1"]
+ALLOWED_HOSTS = ["{{ ansible_host }}", "127.0.0.1"]
 
 
 # Application definition
