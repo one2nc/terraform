@@ -1,4 +1,4 @@
-my_ip = "116.74.215.184/32"
+my_ip = "116.74.177.35/32"
 
 key_name = "terra-hello-key"
 
