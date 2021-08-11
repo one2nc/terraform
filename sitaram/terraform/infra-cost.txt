@@ -1,0 +1,61 @@
+
+  NAME                                      MONTHLY QTY  UNIT        PRICE   HOURLY COST  MONTHLY COST  
+
+  aws_db_instance.rds                                                                                   
+  ├─ Database instance                              730  hours       0.0240       0.0240       17.5200  
+  └─ Database storage                                10  GB-months   0.1310       0.0018        1.3100  
+  Total                                                                           0.0258       18.8300  
+                                                                                                        
+  aws_eip.nat[0]                                                                                        
+  └─ IP address (if unused)                           -  hours       0.0050            -             -  
+  Total                                                                                -             -  
+                                                                                                        
+  aws_eip.nat[1]                                                                                        
+  └─ IP address (if unused)                           -  hours       0.0050            -             -  
+  Total                                                                                -             -  
+                                                                                                        
+  aws_instance.bastion[0]                                                                               
+  ├─ Linux/UNIX usage (on-demand, t3.nano)          730  hours       0.0056       0.0056        4.0880  
+  ├─ CPU credits                                      -  vCPU-hours  0.0500            -             -  
+  └─ root_block_device                      
+     └─ General Purpose SSD storage (gp2)             8  GB-months   0.1140       0.0012        0.9120  
+  Total                                                                           0.0068        5.0000  
+                                                                                                        
+  aws_instance.bastion[1]                                                                               
+  ├─ Linux/UNIX usage (on-demand, t3.nano)          730  hours       0.0056       0.0056        4.0880  
+  ├─ CPU credits                                      -  vCPU-hours  0.0500            -             -  
+  └─ root_block_device                      
+     └─ General Purpose SSD storage (gp2)             8  GB-months   0.1140       0.0012        0.9120  
+  Total                                                                           0.0068        5.0000  
+                                                                                                        
+  aws_instance.webserver[0]                                                                             
+  ├─ Linux/UNIX usage (on-demand, t3.nano)          730  hours       0.0056       0.0056        4.0880  
+  ├─ CPU credits                                      -  vCPU-hours  0.0500            -             -  
+  └─ root_block_device                      
+     └─ General Purpose SSD storage (gp2)             8  GB-months   0.1140       0.0012        0.9120  
+  Total                                                                           0.0068        5.0000  
+                                                                                                        
+  aws_instance.webserver[1]                                                                             
+  ├─ Linux/UNIX usage (on-demand, t3.nano)          730  hours       0.0056       0.0056        4.0880  
+  ├─ CPU credits                                      -  vCPU-hours  0.0500            -             -  
+  └─ root_block_device                      
+     └─ General Purpose SSD storage (gp2)             8  GB-months   0.1140       0.0012        0.9120  
+  Total                                                                           0.0068        5.0000  
+                                                                                                        
+  aws_lb.webserver_alb                                                                                  
+  ├─ Application load balancer                      730  hours       0.0239       0.0239       17.4470  
+  └─ Load balancer capacity units                     -  LCU-hours   0.0080            -             -  
+  Total                                                                           0.0239       17.4470  
+                                                                                                        
+  aws_nat_gateway.nat[0]                                                                                
+  ├─ NAT gateway                                    730  hours       0.0560       0.0560       40.8800  
+  └─ Data processed                                   -  GB          0.0560            -             -  
+  Total                                                                           0.0560       40.8800  
+                                                                                                        
+  aws_nat_gateway.nat[1]                                                                                
+  ├─ NAT gateway                                    730  hours       0.0560       0.0560       40.8800  
+  └─ Data processed                                   -  GB          0.0560            -             -  
+  Total                                                                           0.0560       40.8800  
+                                                                                                        
+  OVERALL TOTAL (USD)                                                             0.1891      138.0370  
+

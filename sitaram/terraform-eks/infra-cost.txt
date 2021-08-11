@@ -1,0 +1,29 @@
+
+  NAME                                               MONTHLY QTY  UNIT       PRICE   HOURLY COST  MONTHLY COST  
+
+  module.eks.aws_autoscaling_group.workers[0]                                                                   
+  └─ module.eks.aws_launch_configuration.workers[0]  
+     ├─ Linux/UNIX usage (on-demand, )                         0  hours      0.0000       0.0000        0.0000  
+     ├─ root_block_device                            
+     │  └─ General Purpose SSD storage (gp2)                   0  GB-months  0.1140       0.0000        0.0000  
+     └─ ebs_block_device[0]                          
+        └─ General Purpose SSD storage (gp2)                   0  GB-months  0.1140       0.0000        0.0000  
+  Total                                                                                   0.0000        0.0000  
+                                                                                                                
+  module.eks.aws_eks_cluster.this[0]                                                                            
+  └─ EKS cluster                                             730  hours      0.1000       0.1000       73.0000  
+  Total                                                                                   0.1000       73.0000  
+                                                                                                                
+  module.vpc.aws_eip.nat[0]                                                                                     
+  └─ IP address (if unused)                                    -  hours      0.0050            -             -  
+  Total                                                                                        -             -  
+                                                                                                                
+  module.vpc.aws_nat_gateway.this[0]                                                                            
+  ├─ NAT gateway                                             730  hours      0.0560       0.0560       40.8800  
+  └─ Data processed                                            -  GB         0.0560            -             -  
+  Total                                                                                   0.0560       40.8800  
+                                                                                                                
+  OVERALL TOTAL (USD)                                                                     0.1560      113.8800  
+
+1 resource type couldn't be estimated as Infracost doesn't support it yet (https://www.infracost.io/docs/supported_resources), re-run with --show-skipped to see the list.
+We're continually adding new resources, please email hello@infracost.io if you'd like us to prioritize your list.
