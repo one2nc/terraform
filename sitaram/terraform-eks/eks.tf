@@ -28,6 +28,14 @@ output "cluster_name" {
   value       = null_resource.eks_cluster.triggers.name
 }
 
+output "cluster_ca" {
+  value = aws_eks_cluster.eks_cluster.certificate_authority.0.data
+}
+
+output "kubernetes_version" {
+  value = aws_eks_cluster.eks_cluster.version
+}
+
 variable "eks_version" {
   type    = string
   default = "1.18"
