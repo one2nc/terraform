@@ -23,6 +23,7 @@ resource "aws_key_pair" "service" {
 }
 
 resource "aws_security_group" "service" {
+  name   = "${local.project_name}-service-sg"
   vpc_id = aws_vpc.main_vpc.id
 
   ingress = [{

@@ -21,6 +21,7 @@ resource "aws_key_pair" "bastion" {
 }
 
 resource "aws_security_group" "bastion" {
+  name   = "${local.project_name}-bastion-sg"
   vpc_id = aws_vpc.main_vpc.id
 
   ingress = [{
