@@ -3,11 +3,10 @@ output "service_private_key" {
   sensitive = true
 }
 
-variable "service" {
-  type = list(object({
-    name          = string
-    ami           = string,
-    instance_type = string,
+variable "services" {
+  type = map(object({
+    ami           = string
+    instance_type = string
     az            = number
   }))
 }
@@ -56,14 +55,16 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_instance" "service" {
-  count                  = length(var.service)
-  ami                    = var.service[count.index].ami
-  instance_type          = var.service[count.index].instance_type
+
+  for_each = var.services
+
+  ami                    = each.value.ami
+  instance_type          = each.value.instance_type
   key_name               = aws_key_pair.service.key_name
-  subnet_id              = element(aws_subnet.private.*.id, var.service[count.index].az)
+  subnet_id              = element(aws_subnet.private.*.id, each.value.az)
   source_dest_check      = false
   vpc_security_group_ids = [aws_security_group.service.id]
   tags = merge({
-    Name = "${local.project_name}-${var.service[count.index].name}"
+    Name = "${local.project_name}-${each.key}"
   }, local.tags)
 }
