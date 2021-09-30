@@ -34,16 +34,6 @@ resource "aws_security_group" "bastion" {
     prefix_list_ids  = []
     security_groups  = []
     self             = false
-    }, {
-    cidr_blocks      = [local.default_route]
-    description      = "HTTPS"
-    from_port        = 443
-    protocol         = "tcp"
-    to_port          = 443
-    ipv6_cidr_blocks = []
-    prefix_list_ids  = []
-    security_groups  = []
-    self             = false
   }]
 
   egress = [{

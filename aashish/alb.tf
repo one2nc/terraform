@@ -12,6 +12,16 @@ resource "aws_security_group" "alb_sg" {
     prefix_list_ids  = []
     security_groups  = []
     self             = false
+    }, {
+    cidr_blocks      = [local.default_route]
+    description      = "HTTPS"
+    from_port        = 443
+    protocol         = "tcp"
+    to_port          = 443
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = []
+    self             = false
   }]
 
   egress = [{
@@ -72,7 +82,7 @@ resource "aws_lb_target_group_attachment" "service" {
   port             = 80
 }
 
-resource "aws_lb_listener" "service" {
+resource "aws_lb_listener" "service_80" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 80
   protocol          = "HTTP"

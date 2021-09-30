@@ -34,7 +34,8 @@ locals {
 }
 
 data "aws_availability_zones" "available" {
-  state = "available"
+  state         = "available"
+  exclude_names = ["ap-south-1c"]
 }
 
 # VPC
