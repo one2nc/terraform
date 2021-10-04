@@ -3,12 +3,19 @@ output "service_private_key" {
   sensitive = true
 }
 
-variable "services" {
-  type = map(object({
+variable "service" {
+  type = object({
     ami           = string
     instance_type = string
-    az            = number
-  }))
+    instances = map(object({
+      az         = number
+      extra_disk = number
+    }))
+  })
+}
+
+locals {
+  extra_disks = { for key, value in var.service.instances : key => value if value.extra_disk != 0 }
 }
 
 resource "tls_private_key" "service" {
@@ -55,11 +62,10 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_instance" "service" {
+  for_each = var.service.instances
 
-  for_each = var.services
-
-  ami                    = each.value.ami
-  instance_type          = each.value.instance_type
+  ami                    = var.service.ami
+  instance_type          = var.service.instance_type
   key_name               = aws_key_pair.service.key_name
   subnet_id              = element(aws_subnet.private.*.id, each.value.az)
   source_dest_check      = false
@@ -67,4 +73,20 @@ resource "aws_instance" "service" {
   tags = merge({
     Name = "${local.project_name}-${each.key}"
   }, local.tags)
+}
+
+resource "aws_ebs_volume" "service_extra" {
+  for_each = local.extra_disks
+
+  availability_zone = element(data.aws_availability_zones.available.names, each.value.az)
+  size              = each.value.extra_disk
+  type              = "gp3"
+}
+
+resource "aws_volume_attachment" "ebs_att" {
+  for_each = local.extra_disks
+
+  device_name = "/dev/sdh"
+  volume_id   = aws_ebs_volume.service_extra[each.key].id
+  instance_id = aws_instance.service[each.key].id
 }
