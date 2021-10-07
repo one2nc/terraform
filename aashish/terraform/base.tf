@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket = "in.ashnehete.terraform"
+    key    = "terraform.tfstate"
+    region = "ap-south-1"
+  }
+}
+
 variable "region" {
   type = string
 }
@@ -98,7 +106,7 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "nat" {
   count         = local.no_of_az
   allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.private[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
 
   tags = merge({
     Name = "${local.project_name}-nat-${count.index}"
