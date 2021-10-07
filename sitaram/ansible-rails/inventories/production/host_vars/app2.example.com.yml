@@ -1,0 +1,2 @@
+ansible_host: 10.1.3.133
+ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q -i ./terraform/bastion_private_key.pem ubuntu@18.141.11.132"'

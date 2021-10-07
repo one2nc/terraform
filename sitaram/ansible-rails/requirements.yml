@@ -1,0 +1,9 @@
+---
+- src: geerlingguy.git
+  version: 3.0.0
+- src: geerlingguy.passenger
+  version: 2.0.0
+- src: geerlingguy.nodejs
+  version: 5.1.1
+- src: rvm.ruby
+  version: v2.1.0

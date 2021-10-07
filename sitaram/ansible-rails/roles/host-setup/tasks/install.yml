@@ -1,0 +1,6 @@
+---
+- name: setup the dependencies based on the os type
+  import_tasks: ubuntu.yml
+  when: 
+    - ansible_distribution == 'Ubuntu'
+    - not skip_setup | bool

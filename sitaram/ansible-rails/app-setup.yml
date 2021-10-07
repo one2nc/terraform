@@ -1,0 +1,7 @@
+---
+- hosts: rails_app
+  become: yes
+
+  roles:
+    - host-setup
+  
