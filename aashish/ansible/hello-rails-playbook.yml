@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  vars:
+    ansible_port: 22
+    ansible_user: ubuntu
+    private_key_file: "../keys/service_key.pem"
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -i ../keys/bastion_key.pem ubuntu@65.2.144.94"'
+  tasks:
+    - name: Copy docker-compose.yml
+      template:
+        src: files/hello-rails.docker-compose.yml
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Run docker-compose
+      shell: docker-compose up -d

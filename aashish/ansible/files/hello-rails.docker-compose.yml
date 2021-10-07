@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    image: shopify/hello-docker-rails
+    ports:
+      - "3000:3000"
+    environment:
+      - MYSQL_USER=learn_user
+      - MYSQL_PASSWORD=password
+      - MYSQL_HOST=terraform-20211007064312127200000001.cmuwyu4xvs88.ap-south-1.rds.amazonaws.com
+    restart: always

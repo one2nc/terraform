@@ -22,6 +22,16 @@ resource "aws_security_group" "alb_sg" {
     prefix_list_ids  = []
     security_groups  = []
     self             = false
+    }, {
+    cidr_blocks      = [local.default_route]
+    description      = "HTTP"
+    from_port        = 3000
+    protocol         = "tcp"
+    to_port          = 3000
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = []
+    self             = false
   }]
 
   egress = [{
@@ -89,6 +99,46 @@ resource "aws_lb_listener" "service_80" {
 
   default_action {
     target_group_arn = aws_lb_target_group.alb_tg.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "alb_tg_hello" {
+  name     = "hello-alb-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main_vpc.id
+
+  health_check {
+    path                = "/"
+    port                = 3000
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 15
+    timeout             = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = merge({
+    Name = "${local.project_name}-hello-alb"
+  }, local.tags)
+}
+
+resource "aws_lb_target_group_attachment" "hello" {
+  for_each         = aws_instance.service
+  target_group_arn = aws_lb_target_group.alb_tg_hello.arn
+  target_id        = aws_instance.service[each.key].id
+  port             = 3000
+}
+
+resource "aws_lb_listener" "hello_3000" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 3000
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.alb_tg_hello.arn
     type             = "forward"
   }
 }

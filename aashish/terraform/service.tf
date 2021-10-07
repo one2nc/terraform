@@ -40,7 +40,7 @@ resource "aws_security_group" "service" {
     to_port          = 0
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
-    security_groups  = [aws_security_group.bastion.id]
+    security_groups  = [aws_security_group.bastion.id, aws_security_group.alb_sg.id]
     self             = false
   }]
 
@@ -70,8 +70,10 @@ resource "aws_instance" "service" {
   subnet_id              = element(aws_subnet.private.*.id, each.value.az)
   source_dest_check      = false
   vpc_security_group_ids = [aws_security_group.service.id]
+  iam_instance_profile   = aws_iam_instance_profile.service.name
   tags = merge({
-    Name = "${local.project_name}-${each.key}"
+    Name = "${local.project_name}-${each.key}",
+    Type = "service"
   }, local.tags)
 }
 

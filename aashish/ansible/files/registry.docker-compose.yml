@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+    registry:
+        image: 'registry:2'
+        ports:
+            - '80:5000'
+        restart: always
+        environment:
+            - REGISTRY_STORAGE=s3
+            - REGISTRY_STORAGE_S3_REGION=ap-south-1
+            - REGISTRY_STORAGE_S3_BUCKET=in.ashnehete.registry
+            - REGISTRY_STORAGE_S3_ROOTDIRECTORY=docker-registry
+            - REGISTRY_HTTP_RELATIVEURLS=true
