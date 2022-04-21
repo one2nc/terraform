@@ -46,14 +46,13 @@ variable "bastian_count" {
     default = 2
 }
 
-
 variable key_name {
   type    = string
   default = "bastian"
 }
 
 variable s3_bucket_name {
-  type = string
+  type        = string
   description = "Bucket name used for registry service."
 }
 
@@ -65,10 +64,55 @@ variable aws_ami {
 variable "instance_count" {
   description = "No. of service instance to provision."
   type        = number
-  default = 1
+  default     = 1
 }
+
+
 variable "instance_count_1" {
   description = "No. of service instance to provision."
   type        = number
-  default = 2
+  default     = 2
+}
+
+variable "db_name" {
+  description = "mysql DB name"
+  type        = string
+  default     = "mydb"
+}
+
+variable "db_username" {
+  description = "Username of databse"
+  type        = string
+  default     = "admin"
+}
+
+variable "db_password" {
+  description = "Password of databse"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_port" {
+  description = "Port of mysql databse"
+  type        = number
+  default     = 3306
+}
+
+variable "db_engine" {
+  description = "Database engine mysql"
+  type        = string
+  default     = "mysql"
+}
+
+variable "db_engine_version" {
+  description = "Database engine version"
+  type        = string
+  default     = "8.0"
+}
+
+variable "db_instance" {
+    description = "Database instance class"
+    type        = string
+    default     = "db.t2.micro"
+
 }

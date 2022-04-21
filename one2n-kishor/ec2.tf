@@ -45,7 +45,7 @@ resource "aws_instance" "service_instance" {
      Name = "ServiceAppServerInstance-${count.index + 1}"
    }
  }
- resource "aws_instance" "service_instance-1" {
+ resource "aws_instance" "service_instance_1" {
     ami                         = var.aws_ami
     instance_type               = var.instance
     count                       = var.instance_count_1
@@ -92,8 +92,8 @@ resource "aws_instance" "service_instance" {
  }
 
  resource "aws_volume_attachment" "service_volume_attach1" {
-   count       = var.instance_count
+   count       = var.instance_count_1
    device_name = "/dev/sdh"
    volume_id   = aws_ebs_volume.ebs_storage1[count.index].id
-   instance_id = aws_instance.service_instance-1[count.index].id
+   instance_id = aws_instance.service_instance_1[count.index].id
  }

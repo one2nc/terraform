@@ -28,9 +28,9 @@ resource "aws_alb_target_group" "my-target-group" {
 
 
 resource "aws_lb_target_group_attachment" "my_alb_tg" {
-  count            = length(aws_instance.service_instance-1)
+  count            = length(aws_instance.service_instance_1)
   target_group_arn = aws_alb_target_group.my-target-group.arn
-  target_id        = aws_instance.service_instance-1[count.index].id
+  target_id        = aws_instance.service_instance_1[count.index].id
   port             = 80
 }
 
