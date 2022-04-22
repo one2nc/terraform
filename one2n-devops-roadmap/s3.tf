@@ -1,3 +1,12 @@
+# Terraform state file store in S3
+terraform {
+    backend "s3" {
+        bucket = "one2n-tf"
+        region = "ap-south-1"
+        key    = "state"
+    }
+}
+
 # IAM User Creation
 # S3 ReadOnly User
 
