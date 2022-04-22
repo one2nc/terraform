@@ -15,7 +15,7 @@ resource "aws_iam_user" "s3_read_only" {
   name = "s3-read-only"
 
   tags = {
-    tag-key = "s3-read-only"
+    tag-key = "${var.environment}s3_read_only"
   }
 }
 
@@ -27,6 +27,10 @@ resource "aws_iam_user_policy" "s3_read_only" {
   name   = "read-only-policy"
   user   = aws_iam_user.s3_read_only.name
   policy = data.aws_iam_policy_document.one2n_read_only.json
+
+  tags = {
+    tag-key = "${var.environment}s3_read_only_policy"
+  }
 }
 
 # S3 Read Write user
@@ -56,7 +60,7 @@ resource "aws_iam_user" "s3_read_write" {
   name = "s3-read-write"
 
   tags = {
-    tag-key = "s3-read-write"
+    tag-key = "${var.environment}s3_read_write"
   }
 }
 
@@ -68,18 +72,19 @@ resource "aws_iam_user_policy" "s3_read_write" {
   name   = "read-write-policy"
   user   = aws_iam_user.s3_read_write.name
   policy = data.aws_iam_policy_document.read_write.json
+
+  tags = {
+    tag-key = "${var.environment}s3_read_write_policy"
+  }
 }
-
-
-
 
 
 # S3 Bucket Creation
 resource "aws_s3_bucket" "one2n-bucket" {
-  bucket  = var.s3_bucket_name
-  acl     = "private"
+  bucket = var.s3_bucket_name
+  acl    = "private"
 
   tags = {
-    Name = "one2n bucket"
+    Name = "${var.environment}_one2n_bucket"
   }
 }

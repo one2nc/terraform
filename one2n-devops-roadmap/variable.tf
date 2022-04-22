@@ -1,11 +1,11 @@
 variable "AWS_REGION" {
-    description = "Region of the VPC"
-    default     = "ap-south-1"
+  description = "Region of the VPC"
+  default     = "ap-south-1"
 }
 
 variable "environment" {
- description = "Environment"
- default     = "Test-one2n"
+  description = "Environment"
+  default     = "terraform-one2n"
 }
 
 variable "vpc_cidr" {
@@ -16,47 +16,44 @@ variable "vpc_cidr" {
 
 variable "public_cidrs" {
   default     = ["172.16.1.0/24", "172.16.2.0/24"]
-  type        = list
+  type        = list(any)
   description = "List of public subnet CIDR blocks"
 }
 
 
 variable "private_cidrs" {
   default     = ["172.16.3.0/24", "172.16.4.0/24"]
-  type        = list
+  type        = list(any)
   description = "List of private subnet CIDR blocks"
 }
 
-
-
-variable "aws_availability_zones" {
-  default     = ["ap-south-1a", "ap-south-1b"]
-  type        = list
-  description = "List of availability zones"
+variable "availablity_zones" {
+  description = "Availablity zones"
+  type        = list(string)
 }
 
-
-variable "instance" {
+variable "instance_type" {
   type    = string
   default = "t2.micro"
 }
 
 variable "bastian_count" {
-    type    = number
-    default = 2
+  type    = number
+  default = 2
 }
 
-variable key_name {
+variable "key_name" {
   type    = string
   default = "bastian"
 }
 
-variable s3_bucket_name {
+variable "s3_bucket_name" {
   type        = string
   description = "Bucket name used for registry service."
+  default     = "one2n-tf"
 }
 
-variable aws_ami {
+variable "aws_ami" {
   type    = string
   default = "ami-0851b76e8b1bce90b"
 }
@@ -111,8 +108,8 @@ variable "db_engine_version" {
 }
 
 variable "db_instance" {
-    description = "Database instance class"
-    type        = string
-    default     = "db.t2.micro"
+  description = "Database instance class"
+  type        = string
+  default     = "db.t2.micro"
 
 }
