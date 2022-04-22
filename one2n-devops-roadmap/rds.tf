@@ -37,7 +37,7 @@ resource "aws_security_group" "rds_sg" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}_sql_securitygroup"
+    Name = "${var.environment}_rds"
   }
 }
 

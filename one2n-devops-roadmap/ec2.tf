@@ -26,7 +26,7 @@ resource "aws_instance" "bastian_instance" {
   depends_on                  = [aws_subnet.public_subnet]
 
   tags = {
-    Name = "${var.environment}_BastianAppServerInstance_${count.index + 1}"
+    Name = "${var.environment}_BastianAppServer_${count.index + 1}"
   }
 }
 
@@ -41,13 +41,13 @@ resource "aws_instance" "service_instance" {
   depends_on                  = [aws_subnet.private_subnet]
 
   tags = {
-    Name = "${var.environment}_ServiceAppServerInstance_${count.index + 1}"
+    Name = "${var.environment}_ServiceAppServer_${count.index + 1}"
   }
 }
 
 resource "aws_instance" "service_instance_1" {
   ami                         = var.aws_ami
-  instance_type               = var.instance
+  instance_type               = var.instance_type
   count                       = var.instance_count_1
   associate_public_ip_address = "false"
   subnet_id                   = aws_subnet.private_subnet.*.id[count.index]
@@ -57,7 +57,7 @@ resource "aws_instance" "service_instance_1" {
 
 
   tags = {
-    Name = "${var.environment}_ServiceAppServerInstance_${count.index + 1}"
+    Name = "${var.environment}_ServiceAppServer"
   }
 }
 
@@ -69,7 +69,7 @@ resource "aws_ebs_volume" "ebs_storage" {
 
 
   tags = {
-    Name = "${var.environment}_storage_service_box ${count.index}"
+    Name = "${var.environment}_storage_service_box_${count.index}"
   }
 }
 
@@ -80,7 +80,7 @@ resource "aws_ebs_volume" "ebs_storage1" {
 
 
   tags = {
-    Name = "${var.environment}_storage_service_box ${count.index}"
+    Name = "${var.environment}_storage_service_box_${count.index}"
   }
 }
 
@@ -89,10 +89,6 @@ resource "aws_volume_attachment" "service_volume_attach" {
   device_name = "/dev/sdh"
   volume_id   = aws_ebs_volume.ebs_storage[count.index].id
   instance_id = aws_instance.service_instance[count.index].id
-
-  tags = {
-    Name = "${var.environment}_volume_attach"
-  }
 }
 
 resource "aws_volume_attachment" "service_volume_attach1" {
@@ -100,8 +96,4 @@ resource "aws_volume_attachment" "service_volume_attach1" {
   device_name = "/dev/sdh"
   volume_id   = aws_ebs_volume.ebs_storage1[count.index].id
   instance_id = aws_instance.service_instance_1[count.index].id
-
-  tags = {
-    Name = "${var.environment}_volume_attach"
-  }
 }

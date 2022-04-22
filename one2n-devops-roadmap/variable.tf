@@ -5,7 +5,7 @@ variable "AWS_REGION" {
 
 variable "environment" {
   description = "Environment"
-  default     = "terraform-one2n"
+  default     = "stagging"
 }
 
 variable "vpc_cidr" {
@@ -50,7 +50,7 @@ variable "key_name" {
 variable "s3_bucket_name" {
   type        = string
   description = "Bucket name used for registry service."
-  default     = "one2n-tf"
+  default     = "Docker_Registry"
 }
 
 variable "aws_ami" {
@@ -74,7 +74,7 @@ variable "instance_count_1" {
 variable "db_name" {
   description = "mysql DB name"
   type        = string
-  default     = "mydb"
+  default     = "Stagging"
 }
 
 variable "db_username" {

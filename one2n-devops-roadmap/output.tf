@@ -6,10 +6,6 @@ output "nat_gateway" {
   value = aws_nat_gateway.nat_gateway.*.public_ip
 }
 
-output "internet_gateway" {
-  value = aws_internet_gateway.gw
-}
-
 output "alb_dns" {
   description = "DNS endpoint for application load balancer."
   value       = aws_lb.my-alb.dns_name

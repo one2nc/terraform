@@ -40,10 +40,6 @@ resource "aws_lb_target_group_attachment" "alb_tg_attach" {
   target_group_arn = aws_alb_target_group.one2n_tg.arn
   target_id        = aws_instance.service_instance_1[count.index].id
   port             = 80
-
-  tags = {
-    Name = "${var.environment}_tg_attach"
-  }
 }
 
 resource "aws_lb_target_group_attachment" "alb_tg_attach1" {
@@ -51,10 +47,6 @@ resource "aws_lb_target_group_attachment" "alb_tg_attach1" {
   target_group_arn = aws_alb_target_group.one2n_tg.arn
   target_id        = aws_instance.service_instance[count.index].id
   port             = 80
-
-  tags = {
-    Name = "${var.environment}_tg_attach"
-  }
 }
 
 # Listener (redirects traffic from the load balancer to the target group)

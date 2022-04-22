@@ -1,16 +1,16 @@
 # Terraform state file store in S3
 terraform {
-    backend "s3" {
-        bucket = "one2n-tf"
-        region = "ap-south-1"
-        key    = "state"
-    }
+  backend "s3" {
+    bucket = "one2n-tf"
+    region = "ap-south-1"
+    key    = "state"
+  }
 }
 
 # IAM User Creation
 # S3 ReadOnly User
 
-data "aws_iam_policy_document" "one2n_read_only" {
+data "aws_iam_policy_document" "s3_read_only" {
   statement {
     effect  = "Allow"
     actions = ["s3:GetObject"]
@@ -22,10 +22,6 @@ data "aws_iam_policy_document" "one2n_read_only" {
 
 resource "aws_iam_user" "s3_read_only" {
   name = "s3-read-only"
-
-  tags = {
-    tag-key = "${var.environment}s3_read_only"
-  }
 }
 
 resource "aws_iam_access_key" "s3_read_only" {
@@ -33,9 +29,9 @@ resource "aws_iam_access_key" "s3_read_only" {
 }
 
 resource "aws_iam_user_policy" "s3_read_only" {
-  name   = "read-only-policy"
+  name   = "S3-read-only-policy"
   user   = aws_iam_user.s3_read_only.name
-  policy = data.aws_iam_policy_document.one2n_read_only.json
+  policy = data.aws_iam_policy_document.s3_read_only.json
 
   tags = {
     tag-key = "${var.environment}s3_read_only_policy"
@@ -44,7 +40,7 @@ resource "aws_iam_user_policy" "s3_read_only" {
 
 # S3 Read Write user
 
-data "aws_iam_policy_document" "read_write" {
+data "aws_iam_policy_document" "s3_read_write" {
   statement {
     sid    = "AllObjectActions"
     effect = "Allow"
@@ -67,10 +63,6 @@ data "aws_iam_policy_document" "read_write" {
 
 resource "aws_iam_user" "s3_read_write" {
   name = "s3-read-write"
-
-  tags = {
-    tag-key = "${var.environment}s3_read_write"
-  }
 }
 
 resource "aws_iam_access_key" "s3_read_write" {
@@ -80,7 +72,7 @@ resource "aws_iam_access_key" "s3_read_write" {
 resource "aws_iam_user_policy" "s3_read_write" {
   name   = "read-write-policy"
   user   = aws_iam_user.s3_read_write.name
-  policy = data.aws_iam_policy_document.read_write.json
+  policy = data.aws_iam_policy_document.s3_read_write.json
 
   tags = {
     tag-key = "${var.environment}s3_read_write_policy"
@@ -92,8 +84,7 @@ resource "aws_iam_user_policy" "s3_read_write" {
 resource "aws_s3_bucket" "one2n-bucket" {
   bucket = var.s3_bucket_name
   acl    = "private"
-
   tags = {
-    Name = "${var.environment}_one2n_bucket"
+    Name = "${var.environment}_Docker_Registry"
   }
 }
