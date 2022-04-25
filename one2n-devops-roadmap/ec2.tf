@@ -26,7 +26,7 @@ resource "aws_instance" "bastian_instance" {
   depends_on                  = [aws_subnet.public_subnet]
 
   tags = {
-    Name = "${var.environment}_BastianAppServer_${count.index + 1}"
+    Name = "${var.environment}-bastian-instance-${count.index + 1}"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_instance" "service_instance" {
   depends_on                  = [aws_subnet.private_subnet]
 
   tags = {
-    Name = "${var.environment}_ServiceAppServer_${count.index + 1}"
+    Name = "${var.environment}-service-instance-${count.index + 1}"
   }
 }
 
@@ -57,7 +57,7 @@ resource "aws_instance" "service_instance_1" {
 
 
   tags = {
-    Name = "${var.environment}_ServiceAppServer"
+    Name = "${var.environment}-service-instance-1"
   }
 }
 
@@ -80,7 +80,7 @@ resource "aws_ebs_volume" "ebs_storage1" {
 
 
   tags = {
-    Name = "${var.environment}_storage_service_box_${count.index}"
+    Name = "${var.environment}-storage-service-box-${count.index}"
   }
 }
 

@@ -7,7 +7,7 @@ resource "aws_lb" "one2n_alb" {
   subnets            = aws_subnet.public_subnet.*.id
 
   tags = {
-    Name = "${var.environment}_alb"
+    Name = "${var.environment}-alb"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_alb_target_group" "one2n_tg" {
   }
 
   tags = {
-    Name = "${var.environment}_target_group"
+    Name = "${var.environment}-target-group"
   }
 }
 
@@ -62,6 +62,6 @@ resource "aws_alb_listener" "alb_http_listener" {
   }
 
   tags = {
-    Name = "${var.environment}_alb_listener"
+    Name = "${var.environment}-alb-listener"
   }
 }

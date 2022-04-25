@@ -34,7 +34,7 @@ resource "aws_iam_user_policy" "s3_read_only" {
   policy = data.aws_iam_policy_document.s3_read_only.json
 
   tags = {
-    tag-key = "${var.environment}s3_read_only_policy"
+    tag-key = "${var.environment}s3-read-only-policy"
   }
 }
 
@@ -75,7 +75,7 @@ resource "aws_iam_user_policy" "s3_read_write" {
   policy = data.aws_iam_policy_document.s3_read_write.json
 
   tags = {
-    tag-key = "${var.environment}s3_read_write_policy"
+    tag-key = "${var.environment}s3-read-write-policy"
   }
 }
 
@@ -85,6 +85,6 @@ resource "aws_s3_bucket" "one2n-bucket" {
   bucket = var.s3_bucket_name
   acl    = "private"
   tags = {
-    Name = "${var.environment}_Docker_Registry"
+    Name = "${var.environment}-Docker-Registry"
   }
 }

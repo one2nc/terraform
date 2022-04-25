@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${var.environment}_vpc"
+    Name = "${var.environment}-vpc"
   }
 }
 
@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.environment}_igw"
+    Name = "${var.environment}-igw"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_route_table" "public_route" {
   }
 
   tags = {
-    Name = "${var.environment}_public_route"
+    Name = "${var.environment}-public-route"
   }
 }
 
@@ -48,7 +48,7 @@ resource "aws_default_route_table" "private_route" {
   }
 
   tags = {
-    Name = "${var.environment}route_table"
+    Name = "${var.environment}route-table"
   }
 }
 
@@ -61,7 +61,7 @@ resource "aws_subnet" "public_subnet" {
   availability_zone       = var.availablity_zones[count.index % length(var.availablity_zones)]
 
   tags = {
-    Name = "${var.environment}_public_subnet.${count.index + 1}"
+    Name = "${var.environment}-public-subnet.${count.index + 1}"
   }
 }
 
@@ -73,7 +73,7 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = var.availablity_zones[count.index % length(var.availablity_zones)]
 
   tags = {
-    Name = "${var.environment}_private_subnet.${count.index + 1}"
+    Name = "${var.environment}-private-subnet.${count.index + 1}"
   }
 }
 
@@ -85,7 +85,7 @@ resource "aws_route_table_association" "public_subnet_assoc" {
   depends_on     = ["aws_route_table.public_route", "aws_subnet.public_subnet"]
 
   tags = {
-    Name = "${var.environment}_subnet_association"
+    Name = "${var.environment}-subnet-association"
   }
 }
 
@@ -97,7 +97,7 @@ resource "aws_route_table_association" "private_subnet_assoc" {
   depends_on     = ["aws_default_route_table.private_route", "aws_subnet.private_subnet"]
 
   tags = {
-    Name = "${var.environment}_subnet_association"
+    Name = "${var.environment}-subnet-association"
   }
 }
 
@@ -156,7 +156,7 @@ resource "aws_security_group" "ec2_sg" {
     security_groups = [aws_security_group.vpc_sg.id]
   }
   tags = {
-    Name = "${var.environment}_ec2_sg"
+    Name = "${var.environment}-ec2-sg"
   }
 }
 
@@ -165,7 +165,7 @@ resource "aws_eip" "nat_eip" {
   vpc = true
 
   tags = {
-    Name = "${var.environment}_nat_eip"
+    Name = "${var.environment}-nat-eip"
   }
 }
 
@@ -175,6 +175,6 @@ resource "aws_nat_gateway" "nat_gateway" {
   subnet_id     = aws_subnet.public_subnet.0.id
 
   tags = {
-    Name = "${var.environment}_nat_gateway"
+    Name = "${var.environment}-nat-gateway"
   }
 }
