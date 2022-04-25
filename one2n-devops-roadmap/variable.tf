@@ -58,13 +58,6 @@ variable "aws_ami" {
   default = "ami-0851b76e8b1bce90b"
 }
 
-variable "instance_count" {
-  description = "No. of service instance to provision."
-  type        = number
-  default     = 1
-}
-
-
 variable "instance_count_1" {
   description = "No. of service instance to provision."
   type        = number

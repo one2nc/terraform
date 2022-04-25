@@ -33,7 +33,6 @@ resource "aws_instance" "bastian_instance" {
 resource "aws_instance" "service_instance" {
   ami                         = var.aws_ami
   instance_type               = var.instance_type
-  count                       = var.instance_count
   associate_public_ip_address = "false"
   subnet_id                   = aws_subnet.private_subnet.*.id[count.index]
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
@@ -41,7 +40,7 @@ resource "aws_instance" "service_instance" {
   depends_on                  = [aws_subnet.private_subnet]
 
   tags = {
-    Name = "${var.environment}-service-instance-${count.index + 1}"
+    Name = "${var.environment}-service-instance"
   }
 }
 
@@ -57,7 +56,7 @@ resource "aws_instance" "service_instance_1" {
 
 
   tags = {
-    Name = "${var.environment}-service-instance-1"
+    Name = "${var.environment}-service-instance-1 ${count.index + 1}"
   }
 }
 
